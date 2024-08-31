@@ -8,13 +8,45 @@ function filterRequest($requestname) {
         return ''; // Or handle missing value appropriately
     }
 }
-function getAllData($table, $where = null, $values = null)
+function getAllData($table, $where = null, $values = null,$Json = true)
 {
     global $db;
     $data = array();
-    $stmt = $db->prepare("SELECT  * FROM $table WHERE   $where ");
+    if($where == null){
+        $stmt = $db->prepare("SELECT  * FROM $table  ");
+    }else{
+        $stmt = $db->prepare("SELECT  * FROM $table WHERE   $where ");
+    }
+   
     $stmt->execute($values);
     $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $count  = $stmt->rowCount();
+    if($Json == true){
+        if ($count > 0) {
+            echo json_encode(array("status" => "success", "data" => $data));
+        } else {
+            echo json_encode(array("status" => "failure"));
+        }
+    }else{
+       if($count> 0){
+        return $data;
+       }else{
+        return json_encode(array('status'=>'failure'));
+       }
+    }
+    
+}
+function getData($table, $where = null, $values = null)
+{
+    global $db;
+    $data = array();
+    if($where == null){
+        $stmt = $db->prepare("SELECT  * FROM $table");
+    }else{
+        $stmt = $db->prepare("SELECT  * FROM $table WHERE   $where ");
+    }
+    $stmt->execute($values);
+    $data = $stmt->fetch(PDO::FETCH_ASSOC);
     $count  = $stmt->rowCount();
     if ($count > 0) {
         echo json_encode(array("status" => "success", "data" => $data));
